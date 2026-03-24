@@ -1,0 +1,102 @@
+<!--Carlos Eduardo-->
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Grimório dos Heróis</title>
+  <style>
+    .card { border: 1px solid #ccc; padding: 10px; margin: 10px; }
+    .mago { background-color: lightblue; }
+    .guerreiro { background-color: lightcoral; }
+    .arqueiro { background-color: lightgreen; }
+  </style>
+</head>
+<body>
+<script src="heroi.js"></script>
+<h1>📖 Grimório dos Heróis</h1>
+
+<form id="formHeroi">
+  <input type="text" id="nome" placeholder="Nome" required>
+  <input type="number" id="nivel" placeholder="Nível" required>
+  
+  <select id="tipo">
+    <option value="Mago">Mago</option>
+    <option value="Guerreiro">Guerreiro</option>
+    <option value="Arqueiro">Arqueiro</option>
+  </select>
+
+  <button type="submit">Adicionar Herói</button>
+</form>
+
+<button onclick="grimorio.salvar()">💾 Salvar Grimório</button>
+<button onclick="grimorio.carregar()">📂 Carregar Grimório</button>
+
+<div id="lista"></div>
+
+<script>
+const form = document.getElementById("formHeroi");
+const lista = document.getElementById("lista");
+
+form.addEventListener("submit", function(e) {
+  e.preventDefault();
+
+  try {
+    const nome = document.getElementById("nome").value;
+    const nivel = parseInt(document.getElementById("nivel").value);
+    const tipo = document.getElementById("tipo").value;
+
+    let heroi;
+
+    switch (tipo) {
+      case "Mago":
+        heroi = new Mago(nome, nivel);
+        break;
+      case "Guerreiro":
+        heroi = new Guerreiro(nome, nivel);
+        break;
+      case "Arqueiro":
+        heroi = new Arqueiro(nome, nivel);
+        break;
+    }
+
+    grimorio.adicionarHeroi(heroi);
+    form.reset();
+
+  } catch (erro) {
+    console.error(erro.message);
+  }
+});
+
+function renderizar() {
+  lista.innerHTML = "";
+
+  grimorio.herois.forEach((h, index) => {
+    const card = document.createElement("div");
+    card.className = `card ${h.tipo.toLowerCase()}`;
+
+    card.innerHTML = `
+      <h3>${h.nome}</h3>
+      <p>Tipo: ${h.tipo}</p>
+      <p>Nível: ${h.nivel}</p>
+      <p>${h.getStatus()}</p>
+      <button onclick="atacar(${index})">⚔️ Atacar</button>
+      <p id="resultado-${index}"></p>
+    `;
+
+    lista.appendChild(card);
+  });
+}
+
+function atacar(index) {
+  const resultadoEl = document.getElementById(`resultado-${index}`);
+  
+  try {
+    const resultado = grimorio.herois[index].atacar();
+    resultadoEl.textContent = resultado;
+  } catch (erro) {
+    resultadoEl.textContent = erro.message;
+  }
+}
+</script>
+
+</body>
+</html>
