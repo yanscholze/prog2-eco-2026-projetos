@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>exercicios funções(2) - Programação II</title>
+  </head>
+<body>
+    abra o console
+    <script>
+    const validar_idade=(idade)=>{if(idade<120 && idade>0){
+    console.log("idade valida");return 0;
+}throw new Error('idade invalida');
+}
+function de_maior(idade){
+    if(idade>=18){
+    console.log("maior de idade");return 0;
+}
+console.log("menor de idade");
+}
+function nascimento(idade){
+    console.log(2026-idade);
+}
+
+function processarIdade(idade, callback){
+callback(idade);
+}
+
+processarIdade(12,validar_idade);
+processarIdade(12,de_maior);
+processarIdade(12,nascimento);
+
+processarIdade(21,validar_idade);
+processarIdade(21,de_maior);
+processarIdade(21,nascimento);
+
+processarIdade(2000,validar_idade);
+</script>
+    <br><a href="../3/3.html"> 3 </a>
+    <!--<script src="2.js"></script>-->
+</body>

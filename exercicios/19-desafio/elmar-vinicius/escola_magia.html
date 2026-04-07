@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escola de Magia Algorithmia</title>
+    <style>
+        body { 
+            font-family: Arial, 
+            sans-serif; 
+            background: #6478d1; 
+            color: #333; 
+            padding: 20px; 
+        }      
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+        }
+        header {
+            text-align: center;
+            color: #ffff;
+            margin-bottom: 30px;
+        }
+        h1 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }       
+        .main { 
+            display: grid; 
+            grid-template-columns: 1fr 2fr; 
+            gap: 20px; 
+        }        
+        .form-section { 
+            background: #fff; 
+            padding: 20px; 
+            border-radius: 8px; 
+        }
+        h2 { 
+            color: #294ce7; 
+            margin-bottom: 15px; 
+            font-size: 1.3em; 
+        }       
+        .form-group { 
+            margin-bottom: 12px; 
+        }
+        label { 
+            display: block; 
+            font-weight: 600; 
+            margin-bottom: 4px; 
+        }
+        input, select { 
+            width: 100%; 
+            padding: 8px; 
+            border: 2px solid #ddd; 
+            border-radius: 4px; 
+        }
+        input:focus, select:focus { 
+            outline: none; 
+            border-color: #667eea; 
+        }
+        button { width: 100%; 
+            padding: 10px; 
+            background: #294ce7; 
+            color: #fff; border: none; 
+            border-radius: 4px; cursor: pointer; 
+            font-weight: 600; margin-top: 10px; 
+        }
+        button:hover { 
+            background: #764ba2; 
+        }
+        .error-message { 
+            color: #e74c3c; 
+            font-size: 0.9em; 
+            margin-top: 3px; 
+            display: none; 
+        }
+        .error-message.show { 
+            display: block; 
+        }
+        .estudantes { 
+            display: flex; 
+            flex-direction: column; 
+        }
+        .header-est { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 15px; 
+            color: #fff; 
+        }
+
+        .ranking-btn { 
+            background: #f39c12; 
+            padding: 10px 20px; 
+            width: auto; 
+            border-radius: 4px;
+        }
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
+            gap: 15px; 
+        }
+        .card { 
+            background: #fff; 
+            padding: 15px; 
+            border-radius: 8px; 
+        }
+        .card-header { 
+            margin-bottom: 12px; 
+            padding-bottom: 12px; 
+            border-bottom: 1px solid #eee; 
+        }
+        .card h3 { 
+            margin-bottom: 3px; 
+        }
+        .matricula { 
+            color: #999; 
+            font-size: 0.85em; 
+        }
+        .nota { 
+            display: flex; 
+            justify-content: space-between; 
+            margin: 8px 0; font-size: 0.9em; 
+        }
+        .media { 
+            background: #667eea; 
+            color: #fff; 
+            padding: 10px; 
+            border-radius: 4px; 
+            text-align: center; 
+            margin: 10px 0; 
+            font-size: 1.4em; 
+            font-weight: 700; 
+        }
+        .situacao { 
+            padding: 8px; 
+            border-radius: 4px; 
+            text-align: center; 
+            font-weight: 600; 
+            color: #fff; 
+        }
+        .aprovado { 
+            background: #27ae60; 
+        }
+        .recuperacao { 
+            background: #f39c12; 
+        }
+        .reprovado { 
+            background: #e74c3c; 
+        }
+        .empty { 
+            text-align: center; 
+            color: #fff; 
+            padding: 30px; 
+        }
+        @media (max-width: 900px) { 
+            .main { 
+                grid-template-columns: 1fr; 
+            } 
+        }
+
+    </style>
+</head>
+<body>
+    <div class="main">
+            <div class="form-section">
+                <h2>Cadastrar Aluno</h2>
+                <form id="form">
+                    <div class="form-group">
+                        <label>Nome</label>
+                        <input type="text" id="nome" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Matrícula</label>
+                        <input type="text" id="matricula" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo</label>
+                        <select id="tipo" required>
+                            <option value="">-- Selecione --</option>
+                            <option value="Bolsista">Bolsista</option>
+                            <option value="Regular">Regular</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Feitiçaria (0-10)</label>
+                        <input type="number" id="feiticaria" min="0" max="10" step="0.1" required>
+                        <div class="error-message" id="e-fei"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Poções (0-10)</label>
+                        <input type="number" id="pocoes" min="0" max="10" step="0.1" required>
+                        <div class="error-message" id="e-poc"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Transfiguração (0-10)</label>
+                        <input type="number" id="transfiguracao" min="0" max="10" step="0.1" required>
+                        <div class="error-message" id="e-tra"></div>
+                    </div>
+                    <button type="submit">Cadastrar</button>
+                </form>
+            </div>
+            <div class="estudantes">
+                <div class="header-est">
+                    <h2>Boletins:</h2>
+                    <button class="ranking-btn" id="ranking">Ranking</button>
+                </div>
+                <div class="grid" id="grid">
+                    <div class="empty">Nenhum estudante registrado</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        class Estudante {
+            constructor(nome, matricula) {
+                this.nome = nome;
+                this.matricula = matricula;
+                this.notas = { feiticaria: 0, pocoes: 0, transfiguracao: 0 };
+                this.tipo = 'Estudante';
+            }
+            lancarNota(disciplina, valor) {
+                if (!(disciplina in this.notas)) throw new Error(`Disciplina ${disciplina} inexistente`);
+                if (typeof valor !== 'number' || valor < 0 || valor > 10) throw new Error(`Nota inválida`);
+                this.notas[disciplina] = valor;
+            }
+            calcularMedia() {
+                return Object.values(this.notas).reduce((a, b) => a + b, 0) / 3;
+            }
+            getSituacao() { throw new Error('Implementar na subclasse'); }
+        }
+
+        class EstudanteBolsista extends Estudante {
+            constructor(nome, matricula) {
+                super(nome, matricula);
+                this.tipo = 'Bolsista';
+            }
+            getSituacao() {
+                const m = this.calcularMedia();
+                return m >= 7 ? 'Aprovado' : m >= 5 ? 'Recuperação' : 'Reprovado';
+            }
+        }
+
+        class EstudanteRegular extends Estudante {
+            constructor(nome, matricula) {
+                super(nome, matricula);
+                this.tipo = 'Regular';
+            }
+            getSituacao() {
+                const m = this.calcularMedia();
+                return m >= 6 ? 'Aprovado' : m >= 4 ? 'Recuperação' : 'Reprovado';
+            }
+        }
+
+        const verificarAvaliavel = (obj) => typeof obj.calcularMedia === 'function' && typeof obj.getSituacao === 'function';
+
+        const secretaria = {
+            estudantes: [],
+            matricular(e) {
+                if (!verificarAvaliavel(e)) throw new Error('Estudante inválido');
+                this.estudantes.push(e);
+                this.salvar();
+            },
+            buscarPorMatricula(mat) {
+                const e = this.estudantes.find(x => x.matricula === mat);
+                if (!e) throw new Error(`Matrícula ${mat} não encontrada`);
+                return e;
+            },
+            gerarRanking() {
+                return [...this.estudantes].sort((a, b) => b.calcularMedia() - a.calcularMedia());
+            },
+            salvar() {
+                localStorage.setItem('est', JSON.stringify(this.estudantes.map(e => ({
+                    nome: e.nome, matricula: e.matricula, notas: e.notas, tipo: e.tipo
+                }))));
+            },
+            carregar() {
+                const dados = localStorage.getItem('est');
+                if (dados) {
+                    try {
+                        this.estudantes = JSON.parse(dados).map(d => {
+                            const E = d.tipo === 'Bolsista' ? EstudanteBolsista : EstudanteRegular;
+                            const e = new E(d.nome, d.matricula);
+                            e.notas = d.notas;
+                            return e;
+                        });
+                    } catch (e) { this.estudantes = []; }
+                }
+            }
+        };
+
+        const form = document.getElementById('form');
+        const fei = document.getElementById('feiticaria');
+        const poc = document.getElementById('pocoes');
+        const tra = document.getElementById('transfiguracao');
+        const grid = document.getElementById('grid');
+
+        const validar = (input, erroId) => {
+            const v = parseFloat(input.value);
+            const erro = document.getElementById(erroId);
+            if (input.value === '') { erro.classList.remove('show'); return true; }
+            if (isNaN(v) || v < 0 || v > 10) {
+                erro.textContent = '⚠️ Valor 0-10';
+                erro.classList.add('show');
+                return false;
+            }
+            erro.classList.remove('show');
+            return true;
+        };
+
+        fei.addEventListener('input', () => validar(fei, 'e-fei'));
+        poc.addEventListener('input', () => validar(poc, 'e-poc'));
+        tra.addEventListener('input', () => validar(tra, 'e-tra'));
+
+        const renderCard = (e) => {
+            const m = e.calcularMedia();
+            const s = e.getSituacao();
+            return `<div class="card">
+                <div class="card-header">
+                    <h3>${e.nome}</h3>
+                    <div class="matricula">Mat: ${e.matricula}</div>
+                </div>
+                <div class="nota">Feitiçaria: <b>${e.notas.feiticaria.toFixed(1)}</b></div>
+                <div class="nota">Poções: <b>${e.notas.pocoes.toFixed(1)}</b></div>
+                <div class="nota">Transfiguração: <b>${e.notas.transfiguracao.toFixed(1)}</b></div>
+                <div class="media">${m.toFixed(2)}</div>
+                <div class="situacao ${s === 'Aprovado' ? 'aprovado' : s === 'Recuperação' ? 'recuperacao' : 'reprovado'}">${s}</div>
+            </div>`;
+        };
+
+        const atualizar = (ests = secretaria.estudantes) => {
+            grid.innerHTML = ests.length ? ests.map(renderCard).join('') : '<div class="empty">Nenhum estudante</div>';
+        };
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            try {
+                if (!validar(fei, 'e-fei') || !validar(poc, 'e-poc') || !validar(tra, 'e-tra')) {
+                    alert('⚠️ Corrija as notas');
+                    return;
+                }
+                const E = document.getElementById('tipo').value === 'Bolsista' ? EstudanteBolsista : EstudanteRegular;
+                const est = new E(document.getElementById('nome').value, document.getElementById('matricula').value);
+                est.lancarNota('feiticaria', parseFloat(fei.value));
+                est.lancarNota('pocoes', parseFloat(poc.value));
+                est.lancarNota('transfiguracao', parseFloat(tra.value));
+                secretaria.matricular(est);
+                atualizar();
+                form.reset();
+                alert('✅ Registrado!');
+            } catch (err) {
+                alert('❌ ' + err.message);
+            }
+        });
+
+        document.getElementById('ranking').addEventListener('click', () => atualizar(secretaria.gerarRanking()));
+
+        secretaria.carregar();
+        atualizar();
+    </script>
+    
+</body>
+</html>

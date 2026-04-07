@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Banco Intergaláctico S.A.</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; }
+  .aba { cursor: pointer; display: inline-block; margin-right: 10px; padding: 5px 10px; background: #ccc; border-radius: 4px; }
+  .aba.active { background: #999; color: #fff; }
+  section { display: none; margin-top: 20px; }
+  input { margin: 5px; }
+  #logOperacoes p { margin: 2px 0; }
+  .success { color: green; }
+  .error { color: red; }
+  table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+  th, td { border: 1px solid #333; padding: 5px; text-align: left; }
+</style>
+</head>
+<body>
+  <h1>Banco Intergaláctico S.A.</h1>
+
+  <div>
+    <span class="aba active" data-target="contas">Contas</span>
+    <span class="aba" data-target="operacoes">Operações</span>
+    <span class="aba" data-target="extrato">Extrato</span>
+  </div>
+
+  <section id="contas" style="display:block">
+    <h2>Abrir Conta</h2>
+    <form id="formConta">
+      <input type="text" id="titular" placeholder="Titular" required>
+      <input type="text" id="numero" placeholder="Número da conta" required>
+      <select id="tipoConta" required>
+        <option value="">Tipo</option>
+        <option value="ContaCorrente">Conta Corrente</option>
+        <option value="ContaPoupanca">Conta Poupança</option>
+        <option value="ContaGalactica">Conta Galáctica</option>
+      </select>
+      <input type="number" id="saldoInicial" placeholder="Saldo inicial" required>
+      <button type="submit">Abrir Conta</button>
+    </form>
+    <div id="erroConta" style="color:red; margin-top:5px;"></div>
+  </section>
+
+  <section id="operacoes">
+    <h2>Operações</h2>
+    <input type="text" id="numContaOp" placeholder="Número da conta">
+    <input type="number" id="valorOp" placeholder="Valor">
+    <button id="btnDepositar">Depositar</button>
+    <button id="btnSacar">Sacar</button>
+    <input type="text" id="destinoOp" placeholder="Número conta destino (transferência)">
+    <button id="btnTransferir">Transferir</button>
+    <div id="logOperacoes"></div>
+  </section>
+
+  <section id="extrato">
+    <h2>Extrato</h2>
+    <input type="text" id="numContaExtrato" placeholder="Número da conta">
+    <button id="verExtrato">Ver Extrato</button>
+    <div id="painelExtrato"></div>
+  </section>
+
+  <script>
+
+  class Conta {
+    constructor(titular, numero, saldo) {
+      if(saldo < 0) throw new Error("Saldo inicial não pode ser negativo");
+      this.titular = titular;
+      this.numero = numero;
+      this.saldo = saldo;
+      this.historico = [`Conta criada com saldo ${saldo}`];
+    }
+    depositar(valor) {
+      if(valor <= 0) throw new Error("Valor de depósito deve ser positivo");
+      this.saldo += valor;
+      this.historico.push(`Depósito de ${valor}. Saldo: ${this.saldo}`);
+    }
+    sacar(valor) {
+      if(valor <= 0) throw new Error("Valor de saque deve ser positivo");
+      if(valor > this.saldo) throw new Error("Saldo insuficiente");
+      this.saldo -= valor;
+      this.historico.push(`Saque de ${valor}. Saldo: ${this.saldo}`);
+    }
+    getExtrato() {
+      return this.historico.slice();
+    }
+  }
+
+  class ContaCorrente extends Conta {
+    constructor(titular, numero, saldo, limiteCredito=500) {
+      super(titular, numero, saldo);
+      this.limiteCredito = limiteCredito;
+    }
+    sacar(valor) {
+      if(valor <= 0) throw new Error("Valor de saque deve ser positivo");
+      if(valor > this.saldo + this.limiteCredito) throw new Error("Saldo + limite insuficiente");
+      this.saldo -= valor;
+      this.historico.push(`Saque de ${valor}. Saldo: ${this.saldo}`);
+    }
+  }
+
+  class ContaPoupanca extends Conta {
+    constructor(titular, numero, saldo, taxaJuros=0.05) {
+      super(titular, numero, saldo);
+      this.taxaJuros = taxaJuros;
+    }
+    aplicarJuros() {
+      const juros = this.saldo * this.taxaJuros;
+      this.saldo += juros;
+      this.historico.push(`Aplicação de juros: ${juros.toFixed(2)}. Saldo: ${this.saldo.toFixed(2)}`);
+    }
+  }
+
+  class ContaGalactica extends ContaCorrente {
+    constructor(titular, numero, saldo, limiteCredito=500, taxaCambio=3.7) {
+      super(titular, numero, saldo, limiteCredito);
+      this.taxaCambio = taxaCambio;
+    }
+    depositarCreditos(creditos) {
+      if(creditos <= 0) throw new Error("Valor de créditos deve ser positivo");
+      const reais = creditos * this.taxaCambio;
+      this.depositar(reais);
+      this.historico.push(`Depósito de ${creditos} créditos (R$ ${reais.toFixed(2)})`);
+    }
+  }
+
+  function verificarTransacionavel(obj) {
+    return obj && typeof obj.depositar === "function" && typeof obj.sacar === "function" && typeof obj.getExtrato === "function";
+  }
+
+  const banco = {
+    contas: [],
+    abrirConta(conta) {
+      if(!verificarTransacionavel(conta)) throw new Error("Conta inválida");
+      this.contas.push(conta);
+      this.salvar();
+    },
+    buscarConta(numero) {
+      const c = this.contas.find(c => c.numero === numero);
+      if(!c) throw new Error("Conta não encontrada");
+      return c;
+    },
+    transferir(origemNum, destinoNum, valor) {
+      const origem = this.buscarConta(origemNum);
+      const destino = this.buscarConta(destinoNum);
+      try {
+        origem.sacar(valor);
+        destino.depositar(valor);
+        return `Transferência de ${valor} realizada de ${origemNum} para ${destinoNum}`;
+      } catch(err) {
+        throw new Error(`Falha na transferência: ${err.message}`);
+      }
+    },
+    salvar() {
+      const data = this.contas.map(c => {
+        const tipo = c.constructor.name;
+        return {...c, tipo};
+      });
+      localStorage.setItem("banco", JSON.stringify(data));
+    },
+    carregar() {
+      const data = JSON.parse(localStorage.getItem("banco") || "[]");
+      this.contas = data.map(d => {
+        let conta;
+        if(d.tipo==="ContaCorrente") conta = new ContaCorrente(d.titular,d.numero,d.saldo,d.limiteCredito);
+        else if(d.tipo==="ContaPoupanca") { conta = new ContaPoupanca(d.titular,d.numero,d.saldo,d.taxaJuros); }
+        else if(d.tipo==="ContaGalactica") conta = new ContaGalactica(d.titular,d.numero,d.saldo,d.limiteCredito,d.taxaCambio);
+        conta.historico = d.historico || [];
+        return conta;
+      });
+    }
+  };
+
+  banco.carregar();
+
+  const abas = document.querySelectorAll(".aba");
+  const secoes = document.querySelectorAll("section");
+  abas.forEach(a => {
+    a.addEventListener("click", ()=>{
+      abas.forEach(x=>x.classList.remove("active"));
+      a.classList.add("active");
+      secoes.forEach(s=>s.style.display="none");
+      document.getElementById(a.dataset.target).style.display="block";
+    });
+  });
+
+  const formConta = document.getElementById("formConta");
+  const erroConta = document.getElementById("erroConta");
+  formConta.addEventListener("submit", e=>{
+    e.preventDefault();
+    const titular = document.getElementById("titular").value;
+    const numero = document.getElementById("numero").value;
+    const tipo = document.getElementById("tipoConta").value;
+    const saldo = parseFloat(document.getElementById("saldoInicial").value);
+    try {
+      let conta;
+      if(tipo==="ContaCorrente") conta = new ContaCorrente(titular, numero, saldo);
+      else if(tipo==="ContaPoupanca") conta = new ContaPoupanca(titular, numero, saldo);
+      else if(tipo==="ContaGalactica") conta = new ContaGalactica(titular, numero, saldo);
+      banco.abrirConta(conta);
+      erroConta.innerHTML = `<span class="success">Conta aberta com sucesso!</span>`;
+      formConta.reset();
+    } catch(err) {
+      erroConta.innerHTML = `<span class="error">${err.message}</span>`;
+    }
+  });
+
+  const logOperacoes = document.getElementById("logOperacoes");
+  document.getElementById("btnDepositar").addEventListener("click", ()=>{
+    const num = document.getElementById("numContaOp").value;
+    const valor = parseFloat(document.getElementById("valorOp").value);
+    try {
+      const conta = banco.buscarConta(num);
+      conta.depositar(valor);
+      banco.salvar();
+      logOperacoes.innerHTML += `<p class="success">Depósito de ${valor} na conta ${num}</p>`;
+    } catch(err) { logOperacoes.innerHTML += `<p class="error">${err.message}</p>`; }
+  });
+
+  document.getElementById("btnSacar").addEventListener("click", ()=>{
+    const num = document.getElementById("numContaOp").value;
+    const valor = parseFloat(document.getElementById("valorOp").value);
+    try {
+      const conta = banco.buscarConta(num);
+      conta.sacar(valor);
+      banco.salvar();
+      logOperacoes.innerHTML += `<p class="success">Saque de ${valor} na conta ${num}</p>`;
+    } catch(err) { logOperacoes.innerHTML += `<p class="error">${err.message}</p>`; }
+  });
+
+  document.getElementById("btnTransferir").addEventListener("click", ()=>{
+    const origem = document.getElementById("numContaOp").value;
+    const destino = document.getElementById("destinoOp").value;
+    const valor = parseFloat(document.getElementById("valorOp").value);
+    try {
+      const msg = banco.transferir(origem,destino,valor);
+      banco.salvar();
+      logOperacoes.innerHTML += `<p class="success">${msg}</p>`;
+    } catch(err) { logOperacoes.innerHTML += `<p class="error">${err.message}</p>`; }
+  });
+
+  document.getElementById("verExtrato").addEventListener("click", ()=>{
+    const num = document.getElementById("numContaExtrato").value;
+    const painel = document.getElementById("painelExtrato");
+    painel.innerHTML = "";
+    try {
+      const conta = banco.buscarConta(num);
+      let html = "<table><tr><th>#</th><th>Descrição</th></tr>";
+      conta.getExtrato().forEach((t,i)=>{
+        html += `<tr><td>${i+1}</td><td>${t}</td></tr>`;
+      });
+      html += "</table>";
+      painel.innerHTML = html;
+    } catch(err) { painel.innerHTML = `<p class="error">${err.message}</p>`; }
+  });
+
+  try {
+    const demo = [
+      new ContaCorrente("Alice","001",1000),
+      new ContaPoupanca("Bob","002",500),
+      new ContaGalactica("Carol","003",300),
+      new ContaCorrente("David","004",1500)
+    ];
+    demo.forEach(c=>{ try { banco.abrirConta(c); } catch(e){} });
+
+    banco.transferir("001","002",200);
+  } catch(e){}
+  </script>
+</body>
+</html>

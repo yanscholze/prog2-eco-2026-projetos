@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>exercicios funções(3) - Programação II</title>
+  </head>
+<body>
+    abra o console
+    
+    <script>
+    const produtos = [
+  { nome: "Mouse",    preco: 80,  estoque: 5  },
+  { nome: "Teclado",  preco: 150, estoque: 0  },
+  { nome: "Monitor",  preco: 900, estoque: 2  },
+  { nome: "Headset",  preco: 200, estoque: 8  },
+  { nome: "Webcam",   preco: 120, estoque: 0  },
+];
+
+//filter
+
+const disponiveis =produtos.filter(estoque>0);
+console.log(disponiveis);
+
+//map
+
+const descontos = produtos.map(preco = preco - (preco*0,1));
+console.log(descontos);
+
+//reduce
+
+const lucro = produtos.reduce((valor,preco,estoque) => valor + preco*estoque, 0);
+console.log(lucro);
+</script>
+    <br><a href="../4/4.html"> 4 </a>
+    <!--<script src="3.js"></script>-->
+</body>
