@@ -6,7 +6,7 @@
 |------|-----------|--------|
 | Isabel Schifler | 2024003899 | [@isabelschifler](https://github.com/isabelschifler) |
 | Suzana | 2026XXX | [@usuario2](https://github.com/usuario2) |
-| Larissa | 2026XXX | [@usuario2](https://github.com/usuario2) |
+| Larissa | 2023009987 | [@lariiferraz](https://github.com/lariiferraz) |
 | Nathan | 2026XXX | [@usuario2](https://github.com/usuario2) |
 
 ---
