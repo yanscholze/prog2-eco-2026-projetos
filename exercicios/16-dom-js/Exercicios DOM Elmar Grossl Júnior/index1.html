@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Alternar Tema</title>
+</head>
+<body>
+  <button id="claro">Tema claro</button>
+  <button id="escuro">Tema escuro</button>
+
+  <script>
+    // Seleciona o body
+    const body = document.querySelector("body");
+
+    const btnClaro = document.querySelector("#claro");
+    const btnEscuro = document.querySelector("#escuro");
+
+    btnClaro.addEventListener("click", function() {
+      body.style.backgroundColor = "white";
+      body.style.color = "black";
+    });
+
+    btnEscuro.addEventListener("click", function() {
+      body.style.backgroundColor = "black";
+      body.style.color = "white";
+    });
+  </script>
+</body>
+</html>

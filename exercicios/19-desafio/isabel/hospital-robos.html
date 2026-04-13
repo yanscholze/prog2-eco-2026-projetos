@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Hospital de Robôs</title>
+<style>
+body { font-family: Arial; padding: 20px; }
+form { margin-bottom: 20px; }
+input, select, button { margin: 5px; padding: 5px; }
+.card { border: 1px solid #ccc; padding: 10px; margin: 10px 0; }
+.verde { background: #d4edda; }
+.amarelo { background: #fff3cd; }
+.vermelho { background: #f8d7da; }
+.destaque { border: 2px solid blue; }
+.alta { background: #ccc; text-decoration: line-through; }
+</style>
+</head>
+<body>
+
+<h2>Admissão de Robô</h2>
+<form id="form">
+<input type="text" id="id" placeholder="ID" required>
+<input type="text" id="modelo" placeholder="Modelo" required>
+<input type="text" id="fabricante" placeholder="Fabricante" required>
+<input type="number" id="ano" placeholder="Ano" required>
+<select id="tipo">
+<option value="servico">Androide Serviço</option>
+<option value="industrial">Robo Industrial</option>
+<option value="medico">Robo Médico</option>
+</select>
+<input type="number" id="articulacoes" placeholder="Articulações (industrial)">
+<button type="submit">Adicionar</button>
+</form>
+
+<input type="text" id="busca" placeholder="Buscar por ID">
+
+<div id="lista"></div>
+
+<script>
+class Robo {
+  constructor(id, modelo, fabricante, anoFabricacao) {
+    if (modelo.length < 3) {
+      throw new Error("Modelo inválido");
+    }
+    this.id = id;
+    this.modelo = modelo;
+    this.fabricante = fabricante;
+    this.anoFabricacao = anoFabricacao;
+  }
+
+  diagnosticar() {
+    return "Diagnóstico genérico";
+  }
+}
+
+class AndroideServico extends Robo {
+  diagnosticar() {
+    if (this.anoFabricacao < 2140) {
+      return "Risco de superaquecimento";
+    }
+    return "Operando normalmente";
+  }
+
+  calcularCusto() {
+    return 500;
+  }
+}
+
+class RoboIndustrial extends Robo {
+  constructor(id, modelo, fabricante, anoFabricacao, articulacoesDanificadas) {
+    super(id, modelo, fabricante, anoFabricacao);
+    this.articulacoesDanificadas = articulacoesDanificadas;
+  }
+
+  calcularCusto() {
+    return 200 * this.articulacoesDanificadas;
+  }
+
+  diagnosticar() {
+    return "Verificar articulações";
+  }
+}
+
+class RoboMedico extends Robo {
+  diagnosticar() {
+    return "Urgência crítica";
+  }
+
+  calcularCusto() {
+    return 1200;
+  }
+}
+
+function verificarDiagnosticavel(obj) {
+  return typeof obj.diagnosticar === 'function' && typeof obj.calcularCusto === 'function';
+}
+
+const hospital = {
+  robos: [],
+
+  admitir(robo) {
+    if (!verificarDiagnosticavel(robo)) {
+      throw new Error("Objeto inválido");
+    }
+    this.robos.push(robo);
+    this.salvar();
+  },
+
+  buscarPorId(id) {
+    const r = this.robos.find(r => r.id === id);
+    if (!r) throw new Error("Não encontrado");
+    return r;
+  },
+
+  realizarTriagem() {
+    return this.robos.map(r => ({
+      robo: r,
+      diagnostico: r.diagnosticar(),
+      custo: r.calcularCusto()
+    }));
+  },
+
+  salvar() {
+    localStorage.setItem("robos", JSON.stringify(this.robos));
+  },
+
+  carregar() {
+    const dados = JSON.parse(localStorage.getItem("robos")) || [];
+    this.robos = dados;
+  }
+};
+
+const lista = document.getElementById("lista");
+
+function render() {
+  lista.innerHTML = "";
+  hospital.realizarTriagem().forEach(item => {
+    const div = document.createElement("div");
+    div.classList.add("card");
+    div.id = item.robo.id;
+
+    if (item.robo instanceof RoboMedico) div.classList.add("vermelho");
+    else if (item.robo instanceof AndroideServico) div.classList.add("amarelo");
+    else div.classList.add("verde");
+
+    div.innerHTML = `
+      <strong>ID:</strong> ${item.robo.id}<br>
+      <strong>Modelo:</strong> ${item.robo.modelo}<br>
+      <strong>Diagnóstico:</strong> ${item.diagnostico}<br>
+      <strong>Custo:</strong> R$ ${item.custo}
+    `;
+
+    div.addEventListener("dblclick", () => {
+      div.classList.toggle("alta");
+    });
+
+    lista.appendChild(div);
+  });
+}
+
+const form = document.getElementById("form");
+form.addEventListener("submit", e => {
+  e.preventDefault();
+
+  try {
+    const id = document.getElementById("id").value;
+    const modelo = document.getElementById("modelo").value;
+    const fabricante = document.getElementById("fabricante").value;
+    const ano = parseInt(document.getElementById("ano").value);
+    const tipo = document.getElementById("tipo").value;
+    const art = parseInt(document.getElementById("articulacoes").value) || 0;
+
+    let robo;
+
+    if (tipo === "servico") {
+      robo = new AndroideServico(id, modelo, fabricante, ano);
+    } else if (tipo === "industrial") {
+      robo = new RoboIndustrial(id, modelo, fabricante, ano, art);
+    } else {
+      robo = new RoboMedico(id, modelo, fabricante, ano);
+    }
+
+    hospital.admitir(robo);
+    render();
+    form.reset();
+
+  } catch (erro) {
+    alert(erro.message);
+  }
+});
+
+const busca = document.getElementById("busca");
+busca.addEventListener("input", () => {
+  const id = busca.value;
+
+  document.querySelectorAll(".card").forEach(c => c.classList.remove("destaque"));
+
+  const el = document.getElementById(id);
+  if (el) {
+    el.classList.add("destaque");
+    el.scrollIntoView({ behavior: "smooth" });
+  }
+});
+
+//  5 robôs exemplo
+(function init() {
+  const exemplos = [
+    new AndroideServico("1","AX1","CyberCorp",2130),
+    new RoboIndustrial("2","INDX","Mecha",2150,3),
+    new RoboMedico("3","MED1","HealthTech",2155),
+    new AndroideServico("4","AX2","CyberCorp",2145),
+    new RoboIndustrial("5","INDY","Mecha",2152,1)
+  ];
+
+  exemplos.forEach(r => hospital.admitir(r));
+  render();
+})();
+</script>
+
+</body>
+</html>

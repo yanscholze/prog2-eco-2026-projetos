@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Agência Espacial BugFree</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f5f5f5;
+      color: #111;
+    }
+    .engenheiro {
+      background-color: yellow;
+    }
+    #log {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .success {
+      color: green;
+    }
+    .error {
+      color: red;
+    }
+    #contador {
+      font-size: 24px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Agência Espacial BugFree</h1>
+  <h2>Painel de Missão Kotlin-9</h2>
+
+  <form id="tripulanteForm">
+    <input type="text" id="nome" placeholder="Nome" required>
+    <input type="text" id="cracha" placeholder="Código do Crachá" required>
+    <select id="tipo" required>
+      <option value="">Tipo</option>
+      <option value="Piloto">Piloto</option>
+      <option value="Cientista">Cientista</option>
+      <option value="Engenheiro">Engenheiro</option>
+    </select>
+    <input type="number" id="nivel" placeholder="Nível (1-5)" min="1" max="5" required>
+    <button type="submit">Adicionar Tripulante</button>
+  </form>
+
+  <ul id="listaTripulantes"></ul>
+
+  <button id="iniciarMissao">🚀 Iniciar Missão</button>
+  <div id="contador"></div>
+  <div id="log"></div>
+
+  <script>
+    class Astronauta {
+      constructor(nome, codigoCracha, nivelExperiencia) {
+        this.nome = nome;
+        this.codigoCracha = codigoCracha;
+        if(nivelExperiencia < 1 || nivelExperiencia > 5) throw new Error("Nível deve ser entre 1 e 5");
+        this.nivelExperiencia = nivelExperiencia;
+      }
+      executarFuncao() {
+        return `${this.nome} executou sua função genérica.`;
+      }
+    }
+
+    class Piloto extends Astronauta {
+      executarFuncao() {
+        return `${this.nome} realizou uma manobra com eficiência de nível ${this.nivelExperiencia}.`;
+      }
+    }
+
+    class Cientista extends Astronauta {
+      constructor(nome, codigoCracha, nivelExperiencia) {
+        super(nome, codigoCracha, nivelExperiencia);
+        this.experimentos = ["Experimento A", "Experimento B", "Experimento C"];
+      }
+      executarFuncao() {
+        if(this.experimentos.length === 0) throw new Error("Sem experimentos na fila!");
+        return `${this.nome} realizou ${this.experimentos.shift()}.`;
+      }
+    }
+
+    class Engenheiro extends Astronauta {
+      constructor(nome, codigoCracha, nivelExperiencia, sistemaResponsavel) {
+        super(nome, codigoCracha, nivelExperiencia);
+        this.sistemaResponsavel = sistemaResponsavel;
+      }
+      executarFuncao() {
+        if(Math.random() < 0.3) throw new Error(`Falha no sistema: ${this.sistemaResponsavel}`);
+        return `${this.nome} verificou o sistema ${this.sistemaResponsavel} com sucesso.`;
+      }
+    }
+
+    function verificarTripulante(obj) {
+      return obj && typeof obj.executarFuncao === "function" && typeof obj.nome === "string";
+    }
+
+    class Missao {
+      constructor(nome, destino, duracaoDias) {
+        this.nome = nome;
+        this.destino = destino;
+        this.duracaoDias = duracaoDias;
+        this.tripulacao = [];
+      }
+
+      adicionarTripulante(astronauta) {
+        if(!verificarTripulante(astronauta)) throw new Error("Tripulante inválido!");
+        if(this.tripulacao.length >= 7) throw new Error("Tripulação já está completa!");
+        this.tripulacao.push(astronauta);
+      }
+
+      iniciar() {
+        const logs = [];
+        this.tripulacao.forEach(t => {
+          try {
+            const resultado = t.executarFuncao();
+            logs.push({nome: t.nome, status:"success", mensagem: resultado});
+          } catch(err) {
+            logs.push({nome: t.nome, status:"error", mensagem: err.message});
+          }
+        });
+        return logs;
+      }
+
+      salvar() {
+        localStorage.setItem("missao", JSON.stringify(this));
+      }
+
+      carregar() {
+        const data = JSON.parse(localStorage.getItem("missao"));
+        if(data) {
+          this.nome = data.nome;
+          this.destino = data.destino;
+          this.duracaoDias = data.duracaoDias;
+          this.tripulacao = data.tripulacao;
+        }
+      }
+    }
+
+    const form = document.querySelector("#tripulanteForm");
+    const lista = document.querySelector("#listaTripulantes");
+    const iniciarBtn = document.querySelector("#iniciarMissao");
+    const logDiv = document.querySelector("#log");
+    const contadorDiv = document.querySelector("#contador");
+
+    const missao = new Missao("Kotlin-9", "Kotlin-9", 30);
+
+    function atualizarLista() {
+      lista.innerHTML = "";
+      missao.tripulacao.forEach((t, i) => {
+        const li = document.createElement("li");
+        li.textContent = `${t.nome} - ${t.constructor.name} - Nível ${t.nivelExperiencia}`;
+        lista.appendChild(li);
+      });
+
+      const engenheiros = lista.querySelectorAll("li");
+      engenheiros.forEach((li, i) => {
+        const tipo = missao.tripulacao[i].constructor.name;
+        if(tipo === "Engenheiro") li.classList.add("engenheiro");
+        else li.classList.remove("engenheiro");
+      });
+    }
+
+    form.addEventListener("submit", function(e){
+      e.preventDefault();
+      const nome = document.querySelector("#nome").value;
+      const cracha = document.querySelector("#cracha").value;
+      const tipo = document.querySelector("#tipo").value;
+      const nivel = parseInt(document.querySelector("#nivel").value);
+
+      try {
+        let tripulante;
+        if(tipo === "Piloto") tripulante = new Piloto(nome, cracha, nivel);
+        if(tipo === "Cientista") tripulante = new Cientista(nome, cracha, nivel);
+        if(tipo === "Engenheiro") tripulante = new Engenheiro(nome, cracha, nivel, "Motor Principal");
+        missao.adicionarTripulante(tripulante);
+        atualizarLista();
+        form.reset();
+      } catch(err) {
+        alert(err.message);
+      }
+    });
+
+    iniciarBtn.addEventListener("click", function(){
+      let tempo = 10;
+      contadorDiv.textContent = `Lançamento em: ${tempo}s`;
+      const timer = setInterval(() => {
+        tempo--;
+        if(tempo > 0) contadorDiv.textContent = `Lançamento em: ${tempo}s`;
+        else {
+          clearInterval(timer);
+          document.body.style.backgroundColor = "#0f172a";
+          document.body.style.color = "#fff";
+          contadorDiv.innerHTML = "🚀 Missão iniciada! Boa viagem, tripulação!";
+        }
+      }, 1000);
+
+      const logs = missao.iniciar();
+      logDiv.innerHTML = "";
+      logs.forEach(l => {
+        const p = document.createElement("p");
+        p.textContent = `${l.nome}: ${l.mensagem}`;
+        p.className = l.status;
+        logDiv.appendChild(p);
+      });
+    });
+
+    const demoTripulantes = [
+      new Piloto("Alice", "P001", 5),
+      new Cientista("Bob", "C002", 3),
+      new Engenheiro("Carol", "E003", 4, "Sistema de Propulsão"),
+      new Piloto("David", "P004", 2),
+      new Cientista("Eve", "C005", 1)
+    ];
+
+    demoTripulantes.forEach(t => {
+      try { missao.adicionarTripulante(t); } catch(e){}
+    });
+    atualizarLista();
+
+  </script>
+</body>
+</html>

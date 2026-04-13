@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Zoológico Digital</title>
+
+<!-- ================= ESTILO ================= -->
+<style>
+/* Estilo geral da página */
+body { 
+  font-family: Arial; 
+  background:#111; 
+  color:#fff; 
+}
+
+/* Container dos cards */
+.container { 
+  display:flex; 
+  gap:20px; 
+}
+
+/* Card individual de cada criatura */
+.card { 
+  background:#222; 
+  padding:15px; 
+  border-radius:10px; 
+  width:200px; 
+  position:relative; 
+}
+
+/* Barra de fome (visual) */
+.bar { 
+  height:20px; 
+  background:red; 
+  margin-top:10px; 
+}
+
+/* Área de logs */
+.log { 
+  margin-top:20px; 
+}
+
+/* Estilo de sucesso */
+.sucesso { color:lightgreen; }
+
+/* Estilo de erro */
+.erro { color:red; }
+
+/* Tooltip (curiosidade) */
+.tooltip { 
+  position:absolute; 
+  top:-30px; 
+  left:0; 
+  background:#333; 
+  padding:5px; 
+  border-radius:5px; 
+  font-size:12px; 
+}
+</style>
+</head>
+<body>
+
+<!-- ================= TÍTULO DINÂMICO ================= -->
+<h2 id="alerta">🚨 Criaturas com fome crítica: 0</h2>
+
+<!-- ================= CARDS ================= -->
+<div class="container" id="cards"></div>
+
+<!-- ================= CONTROLES ================= -->
+<input type="text" id="comida" placeholder="O que servir?">
+<button onclick="alimentarTodas()">Alimentar Todas</button>
+<button onclick="alimentarIndividual()">Alimentar Individualmente</button>
+
+<!-- ================= LOG ================= -->
+<div class="log" id="log"></div>
+
+<script src="main.js"></script>
+
+</body>
+</html>

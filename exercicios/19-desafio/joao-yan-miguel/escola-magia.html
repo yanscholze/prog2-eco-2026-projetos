@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Escola de Magia Algorithmia</title>
+    <style>
+       .card {
+    border: 2px solid #333;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+    width: 300px;
+}
+
+.aprovado { background-color: #d4edda; color: #155724; }      /* Verde */
+.recuperacao { background-color: #fff3cd; color: #856404; }   /* Amarelo */
+.reprovado { background-color: #f8d7da; color: #721c24; }     /* Vermelho */
+
+body {
+ body {
+    /* Use 'onda.png' ou o nome correto do seu arquivo */
+   /* background-image: url('https://escolademagia.com.br/wp-content/uploads/2025/11/metamagia-96a5dcc68cdcb373.jpg'); */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-color: #2c1a32; /* Cor de reserva */
+    
+    color: #f0e68c;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    margin: 0;
+    min-height: 100vh;
+}
+    background-color: #2c1a32; /* Roxo escuro */
+    color: #f0e68c; /* Amarelo palha (cor de pergaminho) */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+h1 {
+    font-variant: small-caps;
+    border-bottom: 2px solid #f0e68c;
+    margin-bottom: 30px;
+}
+
+#form-magia {
+    background: #3d2b45;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    width: 100%;
+    max-width: 500px;
+    margin-bottom: 20px;
+}
+
+input, select {
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+    border: none;
+    width: calc(100% - 22px); /* Ajuste para o padding */
+}
+
+button {
+    background-color: #8a2be2; /* Violeta */
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+    width: 100%;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #a052ee;
+    transform: scale(1.05);
+}
+
+#container-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    width: 100%;
+    max-width: 1000px;
+    margin-top: 30px;
+}
+
+.card {
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    border-left: 8px solid; /* Faixa lateral colorida */
+    transition: transform 0.3s;
+    color: #1a1a1a; /* Texto escuro para contraste no card */
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+/* Cores específicas com fundo suave e borda forte */
+.aprovado { background: #e8f5e9; border-color: #2e7d32; }
+.recuperacao { background: #fffde7; border-color: #fbc02d; }
+.reprovado { background: #ffeead; border-color: #d32f2f; }
+
+
+    </style>
+</head>
+<body>
+  <img src="https://escolademagia.com.br/wp-content/uploads/2025/11/metamagia-96a5dcc68cdcb373.jpg" alt="Fundo Mágico" style="width: 100%; height: auto;"> 
+
+    <h1>Escola de Magia Algorithmia</h1>
+    <form id="form-magia">
+    <input type="text" id="nome"  placeholder="Nome do Bruxo" required>
+    <input type="text" id="matricula" placeholder="Matrícula" required>
+    
+    <select id="tipo">
+        <option value="Regular">Estudante Regular</option>
+        <option value="Bolsista">Estudante Bolsista</option>
+    </select>
+
+    <br><br>
+    <label>Feitiçaria:</label>
+    <input type="number" id="nota-feiticaria" step="0.1" min="0" max="10" required>
+    
+    <label>Poções:</label>
+    <input type="number" id="nota-pocoes" step="0.1" min="0" max="10" required>
+    
+    <label>Transfiguração:</label>
+    <input type="number" id="nota-transfiguracao" step="0.1" min="0" max="10" required>
+
+    <br><br>
+    <button type="submit">Matricular e Lançar Notas</button>
+    <p id="mensagem-erro" style="color: red;"></p> </form>
+ 
+
+    <button id="btn-ranking">Ver Ranking</button>
+
+    <div id="container-cards"></div>
+
+    <script>
+      class Estudante {
+    constructor(nome, matricula) {
+        this.nome = nome;
+        this.matricula = matricula;
+        this.notas = { feiticaria: 0, pocoes: 0, transfiguracao: 0 };
+    }
+
+    lancarNota(disciplina, valor) {
+        if (valor < 0 || valor > 10) {
+            throw new Error("A nota deve ser entre 0 e 10!");
+        }
+        this.notas[disciplina] = valor;
+    }
+
+    // ADICIONE ESTA PARTE AQUI EMBAIXO:
+    calcularMedia() {
+        return (this.notas.feiticaria + this.notas.pocoes + this.notas.transfiguracao) / 3;
+    }
+}
+class EstudanteBolsista extends Estudante {
+    getSituacao() {
+        const media = this.calcularMedia();
+        if (media >= 7.0) return "Aprovado";
+        return media >= 4.0 ? "Recuperação" : "Reprovado";
+    }
+}
+
+class EstudanteRegular extends Estudante {
+    getSituacao() {
+        const media = this.calcularMedia();
+        if (media >= 6.0) return "Aprovado"; // Regular precisa de 6.0
+        return media >= 4.0 ? "Recuperação" : "Reprovado";
+    }
+}
+
+// Onde vamos guardar os alunos
+let listaEstudantes = [];
+
+document.getElementById('form-magia').addEventListener('submit', function(event) {
+    event.preventDefault(); // Impede a página de recarregar
+    
+    const erroDisplay = document.getElementById('mensagem-erro');
+    erroDisplay.innerText = ""; // Limpa erros anteriores
+
+    try {
+        // 1. Pega os valores do formulário
+        const nome = document.getElementById('nome').value;
+        const matricula = document.getElementById('matricula').value;
+        const tipo = document.getElementById('tipo').value;
+        
+        const n1 = parseFloat(document.getElementById('nota-feiticaria').value);
+        const n2 = parseFloat(document.getElementById('nota-pocoes').value);
+        const n3 = parseFloat(document.getElementById('nota-transfiguracao').value);
+
+        // 2. Cria a instância correta (Herança)
+        let novoEstudante;
+        if (tipo === "Bolsista") {
+            novoEstudante = new EstudanteBolsista(nome, matricula);
+        } else {
+            novoEstudante = new EstudanteRegular(nome, matricula);
+        }
+
+        // 3. Tenta lançar as notas (Validação com Try/Catch)
+        novoEstudante.lancarNota('feiticaria', n1);
+        novoEstudante.lancarNota('pocoes', n2);
+        novoEstudante.lancarNota('transfiguracao', n3);
+
+        // 4. Se chegou aqui, deu certo! Adiciona na lista
+        listaEstudantes.push(novoEstudante);
+        
+        // 5. Manda criar o card na tela
+        criarCardNaTela(novoEstudante);
+        
+        // Limpa o formulário
+        this.reset();
+
+    } catch (erro) {
+        // Se a classe Estudante jogar um erro, ele cai aqui
+        erroDisplay.innerText = "Erro: " + erro.message;
+    }
+});
+
+// ... (seu código da imagem termina aqui com o }); )
+
+// ADICIONE ESTE BLOCO LOGO ABAIXO:
+document.getElementById('btn-ranking').addEventListener('click', function() {
+    const container = document.getElementById('container-cards');
+    
+    // Converte os cards em Array
+    const cards = Array.from(container.children);
+
+    // Ordena
+    cards.sort((a, b) => {
+        const mediaA = parseFloat(a.dataset.media);
+        const mediaB = parseFloat(b.dataset.media);
+        return mediaB - mediaA; // Maior para o menor
+    });
+
+    // Re-adiciona no DOM
+    cards.forEach(card => container.appendChild(card));
+});
+
+
+function criarCardNaTela(estudante) {
+    const container = document.getElementById('container-cards');
+    const situacao = estudante.getSituacao();
+    const media = estudante.calcularMedia().toFixed(1);
+
+    // Define a classe CSS baseada na situação
+    let classeCor = "";
+    if (situacao === "Aprovado") classeCor = "aprovado";
+    else if (situacao === "Recuperação") classeCor = "recuperacao";
+    else classeCor = "reprovado";
+
+    // Cria o HTML do card
+    const card = document.createElement('div');
+    card.className = `card ${classeCor}`;
+    card.dataset.media = media; // Importante para o ranking depois!
+
+    card.innerHTML = `
+        <h3>${estudante.nome} (${estudante.matricula})</h3>
+        <p>Notas: ${estudante.notas.feiticaria} | ${estudante.notas.pocoes} | ${estudante.notas.transfiguracao}</p>
+        <p>Média: <strong class="media-valor">${media}</strong></p>
+        <p>Situação: <strong>${situacao}</strong></p>
+    `;
+
+    container.appendChild(card);
+}
+     
+    </script>
+</body>
+</html>

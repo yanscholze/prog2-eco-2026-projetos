@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grimório de Heróis</title>
+</head>
+<body>
+    <h1>Grimório de Heróis</h1>
+    
+    <h2>Criar Novo Herói</h2>
+    <form id="heroForm">
+        <div>
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" name="nome" required>
+        </div>
+        
+        <div>
+            <label for="tipo">Tipo:</label>
+            <select id="tipo" name="tipo" required>
+                <option value="">Selecione um tipo</option>
+                <option value="Mago">Mago</option>
+                <option value="Guerreiro">Guerreiro</option>
+                <option value="Arqueiro">Arqueiro</option>
+            </select>
+        </div>
+        
+        <div>
+            <label for="nivel">Nível:</label>
+            <input type="number" id="nivel" name="nivel" min="1" max="100" value="1" required>
+        </div>
+        
+        <button type="submit">Criar Herói</button>
+    </form>
+    <div id="formMessage"></div>
+    
+    <br>
+    <button id="salvarBtn">Salvar Grimório</button>
+    <button id="carregarBtn">Carregar Grimório</button>
+    <div id="grimorioMessage"></div>
+    
+    <h2>Heróis Cadastrados</h2>
+    <div id="heroisContainer"></div>
+
+    <script src="Heroi.js"></script>
+    <script>
+        const heroForm = document.getElementById('heroForm');
+        const heroisContainer = document.getElementById('heroisContainer');
+        const formMessage = document.getElementById('formMessage');
+        const grimorioMessage = document.getElementById('grimorioMessage');
+        const salvarBtn = document.getElementById('salvarBtn');
+        const carregarBtn = document.getElementById('carregarBtn');
+
+        function exibirMensagem(elemento, mensagem, tipo = 'success') {
+            elemento.innerHTML = `<p style="color: ${tipo === 'success' ? 'green' : 'red'}">${mensagem}</p>`;
+            setTimeout(() => elemento.innerHTML = '', 3000);
+        }
+
+        function criarCardHeroi(heroi, index) {
+            let atributosExtras = '';
+            if (heroi.tipo === 'Mago') {
+                atributosExtras = `<p><strong>Mana:</strong> ${heroi.mana}</p>`;
+            } else if (heroi.tipo === 'Guerreiro') {
+                atributosExtras = `<p><strong>Força:</strong> ${heroi.forca}</p>`;
+            } else if (heroi.tipo === 'Arqueiro') {
+                atributosExtras = `<p><strong>Flechas:</strong> ${heroi.flechas}</p>`;
+            }
+
+            return `
+                <div style="border: 1px solid #ccc; margin: 10px; padding: 10px; 
+                     ${heroi.tipo === 'Mago' ? 'background-color: lightblue;' : 
+                       heroi.tipo === 'Guerreiro' ? 'background-color: lightcoral;' : 
+                       heroi.tipo === 'Arqueiro' ? 'background-color: lightgreen;' : ''}">
+                    <h3>${heroi.nome} (${heroi.tipo})</h3>
+                    <p><strong>Nível:</strong> ${heroi.nivel}</p>
+                    <p><strong>HP:</strong> ${heroi.pontosDeVida}</p>
+                    ${atributosExtras}
+                    <p><strong>Status:</strong> ${heroi.getStatus()}</p>
+                    <button onclick="atacarHeroi(${index})">Atacar</button>
+                    <div id="resultado-${index}"></div>
+                </div>
+            `;
+        }
+
+        function atualizarExibicao() {
+            heroisContainer.innerHTML = grimorio.herois.map((heroi, index) => criarCardHeroi(heroi, index)).join('');
+        }
+
+        function atacarHeroi(index) {
+            const heroi = grimorio.herois[index];
+            const resultadoDiv = document.getElementById(`resultado-${index}`);
+            
+            try {
+                const resultado = heroi.atacar();
+                resultadoDiv.innerHTML = `<p style="color: green;">${resultado}</p>`;
+                
+                atualizarExibicao();
+                
+            } catch (error) {
+                resultadoDiv.innerHTML = `<p style="color: red;">${error.message}</p>`;
+            }
+        }
+
+        heroForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            try {
+                const nome = document.getElementById('nome').value.trim();
+                const tipo = document.getElementById('tipo').value;
+                const nivel = parseInt(document.getElementById('nivel').value);
+                
+                if (!nome) {
+                    throw new Error('Nome não pode estar vazio!');
+                }
+                
+                let heroi;
+                const pontosDeVida = nivel * 10; // 10 HP por nível
+                
+                switch(tipo) {
+                    case 'Mago':
+                        const mana = nivel * 15; // 15 mana por nível
+                        heroi = new Mago(nome, nivel, pontosDeVida, mana);
+                        console.log('Mago criado:', heroi);
+                        break;
+                    case 'Guerreiro':
+                        const forca = nivel * 5; // 5 força por nível
+                        heroi = new Guerreiro(nome, nivel, pontosDeVida, forca);
+                        console.log('Guerreiro criado:', heroi);
+                        break;
+                    case 'Arqueiro':
+                        const flechas = nivel * 3; // 3 flechas por nível
+                        heroi = new Arqueiro(nome, nivel, pontosDeVida, flechas);
+                        console.log('Arqueiro criado:', heroi);
+                        break;
+                    default:
+                        throw new Error('Selecione um tipo de herói!');
+                }
+                
+                grimorio.adicionarHeroi(heroi);
+                atualizarExibicao();
+                
+                // Limpar formulário
+                heroForm.reset();
+                exibirMensagem(formMessage, `Herói ${nome} criado com sucesso!`);
+                
+            } catch (error) {
+                exibirMensagem(formMessage, error.message, 'error');
+            }
+        });
+
+        salvarBtn.addEventListener('click', function() {
+            try {
+                grimorio.salvar();
+                exibirMensagem(grimorioMessage, 'Grimório salvo com sucesso!');
+            } catch (error) {
+                exibirMensagem(grimorioMessage, 'Erro ao salvar: ' + error.message, 'error');
+            }
+        });
+
+        carregarBtn.addEventListener('click', function() {
+            try {
+                grimorio.carregar();
+                atualizarExibicao();
+                exibirMensagem(grimorioMessage, 'Grimório carregado com sucesso!');
+            } catch (error) {
+                exibirMensagem(grimorioMessage, 'Erro ao carregar: ' + error.message, 'error');
+            }
+        });
+
+        window.addEventListener('load', function() {
+            try {
+                grimorio.carregar();
+                atualizarExibicao();
+            } catch (error) {
+            }
+        });
+
+        window.atacarHeroi = atacarHeroi;
+    </script>
+</body>
+</html>
+

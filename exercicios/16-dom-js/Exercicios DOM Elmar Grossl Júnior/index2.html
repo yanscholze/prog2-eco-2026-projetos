@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Lista de Compras</title>
+</head>
+<body>
+  <h1>Lista de Compras</h1>
+
+  <input type="text" id="itemInput" placeholder="Digite um item">
+  <button id="addBtn">Adicionar</button>
+
+  <ul id="lista"></ul>
+
+  <p>Total de itens: <span id="total">0</span></p>
+
+  <script>
+    const lista = document.querySelector("#lista");
+    const totalSpan = document.querySelector("#total");
+    const input = document.querySelector("#itemInput");
+    const addBtn = document.querySelector("#addBtn");
+
+    let totalItens = 0;
+
+    addBtn.addEventListener("click", function() {
+      const item = input.value.trim();
+      if(item !== "") {
+        // Cria o elemento li
+        const li = document.createElement("li");
+        li.textContent = item;
+        lista.appendChild(li);
+
+        // Atualiza o total
+        totalItens++;
+        totalSpan.textContent = totalItens;
+
+        // Limpa o input
+        input.value = "";
+      }
+    });
+  </script>
+</body>
+</html>

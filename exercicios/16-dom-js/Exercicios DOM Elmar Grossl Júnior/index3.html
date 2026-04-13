@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Perguntas de Revisão</title>
+  <style>
+    .resposta {
+      margin-top: 5px;
+      font-weight: bold;
+      color: darkblue;
+    }
+  </style>
+</head>
+<body>
+  <h1>Perguntas de Revisão</h1>
+
+  <div>
+    <p>1. O que é HTML?</p>
+    <button class="mostrarBtn">Mostrar resposta</button>
+    <div class="resposta"></div>
+  </div>
+
+  <div>
+    <p>2. Para que serve o CSS?</p>
+    <button class="mostrarBtn">Mostrar resposta</button>
+    <div class="resposta"></div>
+  </div>
+
+  <div>
+    <p>3. Qual a função do JavaScript em uma página?</p>
+    <button class="mostrarBtn">Mostrar resposta</button>
+    <div class="resposta"></div>
+  </div>
+
+  <script>
+    const botoes = document.querySelectorAll(".mostrarBtn");
+
+    botoes.forEach((btn, index) => {
+      btn.addEventListener("click", function() {
+        const divResposta = btn.nextElementSibling; // pega a div logo após o botão
+        if(index === 0) divResposta.innerHTML = "Resposta: HTML é a linguagem de marcação usada para estruturar páginas web.";
+        if(index === 1) divResposta.innerHTML = "Resposta: CSS é usado para estilizar o conteúdo HTML, definindo cores, fontes, layouts, etc.";
+        if(index === 2) divResposta.innerHTML = "Resposta: JavaScript adiciona interatividade e comportamentos dinâmicos às páginas web.";
+      });
+    });
+  </script>
+</body>
+</html>

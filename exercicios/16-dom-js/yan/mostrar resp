@@ -1,0 +1,6 @@
+const btn = document.querySelector("#btn");
+const resposta = document.querySelector("#resposta");
+
+btn.addEventListener("click", () => {
+  resposta.innerHTML = "DOM é a estrutura que representa o HTML.";
+});
