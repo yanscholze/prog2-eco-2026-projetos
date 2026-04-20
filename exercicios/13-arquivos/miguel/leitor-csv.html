@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Leitor CSV</title>
+  <style>
+    table, th, td {
+      border: 1px solid black;
+      border-collapse: collapse;
+      padding: 8px;
+    }
+    .destaque {
+      background-color: yellow;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📄 Leitor de CSV</h1>
+
+  <input type="file" id="arquivo" accept=".csv">
+  <br><br>
+
+  <table id="tabela"></table>
+
+  <p id="mensagem"></p>
+
+  <script>
+    const input = document.querySelector("#arquivo");
+    const tabela = document.querySelector("#tabela");
+    const mensagem = document.querySelector("#mensagem");
+
+    input.addEventListener("change", function() {
+      const arquivo = input.files[0];
+
+      if (!arquivo) {
+        mensagem.textContent = "Nenhum arquivo selecionado.";
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = function(event) {
+        try {
+          const texto = event.target.result;
+
+          if (!texto.trim()) {
+            throw new Error("Arquivo vazio!");
+          }
+
+          const linhas = texto.split("\n").map(l => l.trim()).filter(l => l);
+
+          tabela.innerHTML = "";
+
+          let maiorValor = -Infinity;
+          let indiceMaior = -1;
+
+          linhas.forEach((linha, index) => {
+            const colunas = linha.split(",");
+
+            const tr = document.createElement("tr");
+
+            colunas.forEach(coluna => {
+              const td = document.createElement(index === 0 ? "th" : "td");
+              td.textContent = coluna;
+              tr.appendChild(td);
+            });
+
+            // Verifica valor numérico na segunda coluna (ex: nota/preço)
+            if (index > 0 && !isNaN(colunas[1])) {
+              const valor = Number(colunas[1]);
+              if (valor > maiorValor) {
+                maiorValor = valor;
+                indiceMaior = index;
+              }
+            }
+
+            tabela.appendChild(tr);
+          });
+
+          // Destacar linha com maior valor
+          if (indiceMaior !== -1) {
+            tabela.rows[indiceMaior].classList.add("destaque");
+          }
+
+          mensagem.textContent = "Arquivo carregado com sucesso!";
+
+        } catch (erro) {
+          mensagem.textContent = "Erro: " + erro.message;
+        }
+      };
+
+      reader.onerror = function() {
+        mensagem.textContent = "Erro ao ler o arquivo.";
+      };
+
+      reader.readAsText(arquivo);
+    });
+  </script>
+
+</body>
+</html>

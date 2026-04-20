@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Consumo de API</title>
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+      background: #f4f4f4;
+    }
+
+    button {
+      padding: 8px 12px;
+      margin: 5px;
+    }
+
+    table {
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: #fff;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px 12px;
+    }
+
+    th {
+      background: #eee;
+    }
+
+    #erro {
+      color: red;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Consumo de API (Fetch)</h2>
+
+  <button onclick="carregarUsuarios()">Carregar Usuários</button>
+  <button onclick="carregarPosts()">Carregar Posts</button>
+
+  <div id="erro"></div>
+  <div id="dados"></div>
+
+  <script>
+    // Interface (conceito)
+    class FonteDados {
+      getUrl() {
+        throw new Error("Método getUrl deve ser implementado");
+      }
+    }
+
+    class ApiUsuarios extends FonteDados {
+      getUrl() {
+        return "https://jsonplaceholder.typicode.com/users";
+      }
+    }
+
+    class ApiPosts extends FonteDados {
+      getUrl() {
+        return "https://jsonplaceholder.typicode.com/posts";
+      }
+    }
+
+    async function buscarDados(fonte) {
+      const erroDiv = document.getElementById("erro");
+      const dadosDiv = document.getElementById("dados");
+
+      erroDiv.innerHTML = "";
+      dadosDiv.innerHTML = "Carregando...";
+
+      try {
+        const response = await fetch(fonte.getUrl());
+
+        if (!response.ok) {
+          throw new Error("Erro ao acessar a API.");
+        }
+
+        const dados = await response.json();
+
+        renderizar(dados);
+
+      } catch (erro) {
+        dadosDiv.innerHTML = "";
+        erroDiv.innerHTML = "Erro: " + erro.message + " (verifique sua conexão)";
+      }
+    }
+
+    function renderizar(lista) {
+      const div = document.getElementById("dados");
+
+      if (!Array.isArray(lista) || lista.length === 0) {
+        div.innerHTML = "<p>Nenhum dado encontrado.</p>";
+        return;
+      }
+
+      let html = "<table><tr>";
+
+      // Cabeçalho dinâmico
+      Object.keys(lista[0]).forEach(chave => {
+        html += `<th>${chave}</th>`;
+      });
+
+      html += "</tr>";
+
+      // Linhas (limitando pra não ficar gigante)
+      lista.slice(0, 10).forEach(item => {
+        html += "<tr>";
+
+        Object.values(item).forEach(valor => {
+          if (typeof valor === "object") {
+            valor = JSON.stringify(valor);
+          }
+          html += `<td>${valor}</td>`;
+        });
+
+        html += "</tr>";
+      });
+
+      html += "</table>";
+
+      div.innerHTML = html;
+    }
+
+    function carregarUsuarios() {
+      const api = new ApiUsuarios();
+      buscarDados(api);
+    }
+
+    function carregarPosts() {
+      const api = new ApiPosts();
+      buscarDados(api);
+    }
+  </script>
+
+</body>
+</html>

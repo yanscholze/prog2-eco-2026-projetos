@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Calculadora com Interface</title>
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+      background: #f4f4f4;
+    }
+    input, select, button {
+      padding: 8px;
+      margin: 5px;
+    }
+    #resultado {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Calculadora</h2>
+
+  <input type="text" id="valorA" placeholder="Valor A">
+  <input type="text" id="valorB" placeholder="Valor B">
+
+  <select id="operacao">
+    <option value="soma">Soma</option>
+    <option value="subtracao">Subtração</option>
+    <option value="multiplicacao">Multiplicação</option>
+    <option value="potencia">Potência</option>
+    <option value="divisao">Divisão Segura</option>
+  </select>
+
+  <br>
+  <button onclick="calcular()">Calcular</button>
+
+  <div id="resultado"></div>
+
+  <script>
+    // Interface (conceito)
+    class Operacao {
+      calcular(a, b) {
+        throw new Error("Método calcular deve ser implementado");
+      }
+    }
+
+    class Soma extends Operacao {
+      calcular(a, b) {
+        return a + b;
+      }
+    }
+
+    class Subtracao extends Operacao {
+      calcular(a, b) {
+        return a - b;
+      }
+    }
+
+    class Multiplicacao extends Operacao {
+      calcular(a, b) {
+        return a * b;
+      }
+    }
+
+    class Potencia extends Operacao {
+      calcular(a, b) {
+        return Math.pow(a, b);
+      }
+    }
+
+    class DivisaoSegura extends Operacao {
+      calcular(a, b) {
+        if (b === 0) {
+          throw new Error("Não é possível dividir por zero!");
+        }
+        return a / b;
+      }
+    }
+
+    function executarOperacao(a, b, operacao) {
+      return operacao.calcular(a, b);
+    }
+
+    function calcular() {
+      const resultadoDiv = document.getElementById("resultado");
+
+      try {
+        let a = parseFloat(document.getElementById("valorA").value);
+        let b = parseFloat(document.getElementById("valorB").value);
+        let tipo = document.getElementById("operacao").value;
+
+        if (isNaN(a) || isNaN(b)) {
+          throw new Error("Digite valores numéricos válidos.");
+        }
+
+        let operacao;
+
+        switch (tipo) {
+          case "soma":
+            operacao = new Soma();
+            break;
+          case "subtracao":
+            operacao = new Subtracao();
+            break;
+          case "multiplicacao":
+            operacao = new Multiplicacao();
+            break;
+          case "potencia":
+            operacao = new Potencia();
+            break;
+          case "divisao":
+            operacao = new DivisaoSegura();
+            break;
+          default:
+            throw new Error("Operação inválida.");
+        }
+
+        let resultado = executarOperacao(a, b, operacao);
+
+        resultadoDiv.innerHTML = "Resultado: " + resultado;
+
+      } catch (erro) {
+        resultadoDiv.innerHTML = "Erro: " + erro.message;
+      }
+    }
+  </script>
+
+</body>
+</html>

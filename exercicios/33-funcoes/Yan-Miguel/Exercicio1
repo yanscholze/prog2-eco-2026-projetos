@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Função apresentar</title>
+</head>
+<body>
+
+  <h1>Resultado no console</h1>
+
+  <script>
+    const apresentar = (nome, curso, semestre = 1) =>
+      `${nome} – ${curso} – ${semestre}º semestre`;
+
+    console.log(apresentar("Ana", "Eng. Computação", 3));
+    console.log(apresentar("João", "Eng. Computação"));
+  </script>
+
+</body>
+</html>
