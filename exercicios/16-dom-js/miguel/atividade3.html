@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Perguntas e Respostas</title>
+</head>
+<body>
+
+  <h1>📚 Perguntas de Revisão</h1>
+
+  <!-- Pergunta 1 -->
+  <p>1. O que é o DOM?</p>
+  <button id="btn1">Mostrar resposta</button>
+  <div id="resp1"></div>
+
+  <!-- Pergunta 2 -->
+  <p>2. Para que serve o querySelector?</p>
+  <button id="btn2">Mostrar resposta</button>
+  <div id="resp2"></div>
+
+  <!-- Pergunta 3 -->
+  <p>3. Qual a diferença entre innerHTML e textContent?</p>
+  <button id="btn3">Mostrar resposta</button>
+  <div id="resp3"></div>
+
+  <script>
+    // Selecionando elementos
+    const btn1 = document.querySelector("#btn1");
+    const btn2 = document.querySelector("#btn2");
+    const btn3 = document.querySelector("#btn3");
+
+    const resp1 = document.querySelector("#resp1");
+    const resp2 = document.querySelector("#resp2");
+    const resp3 = document.querySelector("#resp3");
+
+    // Eventos de clique
+    btn1.addEventListener("click", function() {
+      resp1.innerHTML = "Resposta: O DOM é a representação da página em forma de árvore de elementos.";
+    });
+
+    btn2.addEventListener("click", function() {
+      resp2.innerHTML = "Resposta: Serve para selecionar elementos do HTML usando seletores.";
+    });
+
+    btn3.addEventListener("click", function() {
+      resp3.innerHTML = "Resposta: innerHTML interpreta HTML, enquanto textContent mostra apenas texto.";
+    });
+  </script>
+
+</body>
+</html>

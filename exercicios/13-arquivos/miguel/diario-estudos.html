@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Diário de Estudos</title>
+</head>
+<body>
+
+  <h1>📘 Diário de Estudos</h1>
+
+  <!-- Formulário -->
+  <input type="date" id="data">
+  <input type="text" id="disciplina" placeholder="Disciplina">
+  <input type="text" id="resumo" placeholder="Resumo do estudo">
+  <button id="addBtn">Adicionar</button>
+
+  <br><br>
+
+  <button id="filtroBtn">Filtrar Programação II</button>
+  <button id="exportarBtn">Exportar diário</button>
+
+  <h2>Registros:</h2>
+  <ul id="lista"></ul>
+
+  <p id="mensagem"></p>
+
+  <script>
+    // "Interface"
+    class RepositorioDiario {
+      adicionar(registro) {
+        throw new Error("Método adicionar deve ser implementado");
+      }
+
+      listar() {
+        throw new Error("Método listar deve ser implementado");
+      }
+    }
+
+    // Implementação em memória
+    class RepositorioMemoria extends RepositorioDiario {
+      constructor() {
+        super();
+        this.registros = [];
+      }
+
+      adicionar(registro) {
+        this.registros.push(registro);
+      }
+
+      listar() {
+        return this.registros;
+      }
+    }
+
+    const repo = new RepositorioMemoria();
+
+    // Selecionando elementos
+    const dataInput = document.querySelector("#data");
+    const disciplinaInput = document.querySelector("#disciplina");
+    const resumoInput = document.querySelector("#resumo");
+    const addBtn = document.querySelector("#addBtn");
+    const lista = document.querySelector("#lista");
+    const mensagem = document.querySelector("#mensagem");
+    const exportarBtn = document.querySelector("#exportarBtn");
+    const filtroBtn = document.querySelector("#filtroBtn");
+
+    // Função para atualizar lista
+    function atualizarLista(registros) {
+      lista.innerHTML = "";
+
+      registros.forEach(r => {
+        const li = document.createElement("li");
+        li.textContent = `${r.data} - ${r.disciplina}: ${r.resumo}`;
+        lista.appendChild(li);
+      });
+    }
+
+    // Adicionar registro
+    addBtn.addEventListener("click", function() {
+      try {
+        const data = dataInput.value;
+        const disciplina = disciplinaInput.value.trim();
+        const resumo = resumoInput.value.trim();
+
+        // Validações
+        if (!data) {
+          throw new Error("Data é obrigatória!");
+        }
+
+        if (!disciplina) {
+          throw new Error("Disciplina não pode estar vazia!");
+        }
+
+        if (resumo.length < 5) {
+          throw new Error("Resumo deve ter pelo menos 5 caracteres!");
+        }
+
+        const registro = { data, disciplina, resumo };
+
+        repo.adicionar(registro);
+        atualizarLista(repo.listar());
+
+        mensagem.textContent = "Registro adicionado com sucesso!";
+
+        // Limpar campos
+        dataInput.value = "";
+        disciplinaInput.value = "";
+        resumoInput.value = "";
+
+      } catch (erro) {
+        mensagem.textContent = "Erro: " + erro.message;
+      }
+    });
+
+    // Exportar diário
+    exportarBtn.addEventListener("click", function() {
+      const registros = repo.listar();
+
+      let texto = "Diário de Estudos\n\n";
+
+      registros.forEach(r => {
+        texto += `${r.data} - ${r.disciplina}: ${r.resumo}\n`;
+      });
+
+      const blob = new Blob([texto], { type: "text/plain" });
+      const link = document.createElement("a");
+
+      link.href = URL.createObjectURL(blob);
+      link.download = "diario.txt";
+      link.click();
+    });
+
+    // Filtro Programação II
+    filtroBtn.addEventListener("click", function() {
+      const filtrados = repo.listar().filter(r =>
+        r.disciplina.toLowerCase() === "programação ii"
+      );
+
+      atualizarLista(filtrados);
+    });
+  </script>
+
+</body>
+</html>

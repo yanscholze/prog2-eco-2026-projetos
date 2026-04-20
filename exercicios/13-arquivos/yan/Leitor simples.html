@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Leitor de CSV</title>
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+      background: #f4f4f4;
+    }
+
+    table {
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: #fff;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px 12px;
+    }
+
+    th {
+      background: #eee;
+    }
+
+    .highlight {
+      background-color: #90ee90;
+      font-weight: bold;
+    }
+
+    #erro {
+      color: red;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Importar CSV</h2>
+
+  <input type="file" id="fileInput" accept=".csv">
+  <div id="erro"></div>
+  <div id="tabela"></div>
+
+  <script>
+    document.getElementById("fileInput").addEventListener("change", function(e) {
+      const file = e.target.files[0];
+      const erroDiv = document.getElementById("erro");
+      const tabelaDiv = document.getElementById("tabela");
+
+      erroDiv.innerHTML = "";
+      tabelaDiv.innerHTML = "";
+
+      try {
+        if (!file) {
+          throw new Error("Nenhum arquivo selecionado.");
+        }
+
+        if (!file.name.endsWith(".csv")) {
+          throw new Error("Selecione um arquivo .csv válido.");
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = function(event) {
+          try {
+            const texto = event.target.result.trim();
+
+            if (!texto) {
+              throw new Error("Arquivo vazio.");
+            }
+
+            const linhas = texto.split("\n").map(l => l.trim());
+
+            const dados = linhas.map(linha => linha.split(","));
+
+            if (dados.length < 2) {
+              throw new Error("CSV precisa ter pelo menos cabeçalho e uma linha.");
+            }
+
+            // Criar tabela
+            let table = "<table>";
+
+            // Cabeçalho
+            table += "<tr>";
+            dados[0].forEach(col => {
+              table += `<th>${col}</th>`;
+            });
+            table += "</tr>";
+
+            // Detectar coluna numérica automaticamente
+            let colunaNumerica = -1;
+
+            for (let j = 0; j < dados[0].length; j++) {
+              let isNumero = true;
+
+              for (let i = 1; i < dados.length; i++) {
+                let valor = dados[i][j]?.replace(",", "."); // caso decimal
+                if (isNaN(parseFloat(valor))) {
+                  isNumero = false;
+                  break;
+                }
+              }
+
+              if (isNumero) {
+                colunaNumerica = j;
+                break;
+              }
+            }
+
+            // Encontrar maior valor
+            let maiorValor = -Infinity;
+            let linhaMaior = -1;
+
+            if (colunaNumerica !== -1) {
+              for (let i = 1; i < dados.length; i++) {
+                let valor = parseFloat(dados[i][colunaNumerica].replace(",", "."));
+
+                if (valor > maiorValor) {
+                  maiorValor = valor;
+                  linhaMaior = i;
+                }
+              }
+            }
+
+            // Linhas
+            for (let i = 1; i < dados.length; i++) {
+              let classe = (i === linhaMaior) ? "highlight" : "";
+
+              table += `<tr class="${classe}">`;
+
+              dados[i].forEach(col => {
+                table += `<td>${col}</td>`;
+              });
+
+              table += "</tr>";
+            }
+
+            table += "</table>";
+
+            tabelaDiv.innerHTML = table;
+
+          } catch (erroInterno) {
+            erroDiv.innerHTML = erroInterno.message;
+          }
+        };
+
+        reader.readAsText(file);
+
+      } catch (erro) {
+        erroDiv.innerHTML = erro.message;
+      }
+    });
+  </script>
+
+</body>
+</html>

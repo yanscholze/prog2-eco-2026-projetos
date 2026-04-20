@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Diário de Estudos</title>
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+      background: #f4f4f4;
+    }
+
+    input, textarea, button {
+      display: block;
+      margin: 8px 0;
+      padding: 8px;
+      width: 300px;
+    }
+
+    table {
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: #fff;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px 12px;
+    }
+
+    th {
+      background: #eee;
+    }
+
+    #erro {
+      color: red;
+      margin-top: 10px;
+    }
+
+    .top-bar {
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Diário de Estudos</h2>
+
+  <form id="form">
+    <input type="date" id="data" required>
+    <input type="text" id="disciplina" placeholder="Disciplina">
+    <textarea id="resumo" placeholder="Resumo do estudo"></textarea>
+    <button type="submit">Adicionar</button>
+  </form>
+
+  <div id="erro"></div>
+
+  <div class="top-bar">
+    <button onclick="exportar()">Exportar diário (.txt)</button>
+    <button onclick="filtrarProg2()">Filtrar Programação II</button>
+    <button onclick="mostrarTodos()">Mostrar todos</button>
+  </div>
+
+  <div id="tabela"></div>
+
+  <script>
+    // Interface (conceito)
+    class RepositorioDiario {
+      adicionar(registro) {
+        throw new Error("Método adicionar deve ser implementado");
+      }
+
+      listar() {
+        throw new Error("Método listar deve ser implementado");
+      }
+    }
+
+    // Implementação em memória
+    class RepositorioMemoria extends RepositorioDiario {
+      constructor() {
+        super();
+        this.registros = [];
+      }
+
+      adicionar(registro) {
+        this.registros.push(registro);
+      }
+
+      listar() {
+        return this.registros;
+      }
+    }
+
+    const repo = new RepositorioMemoria();
+
+    function validar(registro) {
+      if (!registro.data) {
+        throw new Error("Data é obrigatória.");
+      }
+
+      if (!registro.disciplina || registro.disciplina.trim() === "") {
+        throw new Error("Disciplina não pode estar vazia.");
+      }
+
+      if (!registro.resumo || registro.resumo.length < 10) {
+        throw new Error("Resumo deve ter pelo menos 10 caracteres.");
+      }
+    }
+
+    function renderizar(lista) {
+      const div = document.getElementById("tabela");
+
+      if (lista.length === 0) {
+        div.innerHTML = "<p>Nenhum registro.</p>";
+        return;
+      }
+
+      let html = "<table>";
+      html += "<tr><th>Data</th><th>Disciplina</th><th>Resumo</th></tr>";
+
+      lista.forEach(r => {
+        html += `<tr>
+          <td>${r.data}</td>
+          <td>${r.disciplina}</td>
+          <td>${r.resumo}</td>
+        </tr>`;
+      });
+
+      html += "</table>";
+
+      div.innerHTML = html;
+    }
+
+    document.getElementById("form").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const erroDiv = document.getElementById("erro");
+      erroDiv.innerHTML = "";
+
+      try {
+        const registro = {
+          data: document.getElementById("data").value,
+          disciplina: document.getElementById("disciplina").value,
+          resumo: document.getElementById("resumo").value
+        };
+
+        validar(registro);
+
+        repo.adicionar(registro);
+
+        renderizar(repo.listar());
+
+        this.reset();
+
+      } catch (erro) {
+        erroDiv.innerHTML = erro.message;
+      }
+    });
+
+    function exportar() {
+      try {
+        const lista = repo.listar();
+
+        if (lista.length === 0) {
+          throw new Error("Não há registros para exportar.");
+        }
+
+        let texto = "DIÁRIO DE ESTUDOS\n\n";
+
+        lista.forEach(r => {
+          texto += `Data: ${r.data}\n`;
+          texto += `Disciplina: ${r.disciplina}\n`;
+          texto += `Resumo: ${r.resumo}\n`;
+          texto += "----------------------\n";
+        });
+
+        const blob = new Blob([texto], { type: "text/plain" });
+        const link = document.createElement("a");
+
+        link.href = URL.createObjectURL(blob);
+        link.download = "diario_estudos.txt";
+        link.click();
+
+      } catch (erro) {
+        document.getElementById("erro").innerHTML = erro.message;
+      }
+    }
+
+    function filtrarProg2() {
+      const filtrados = repo.listar().filter(r =>
+        r.disciplina.toLowerCase().includes("programação ii")
+      );
+
+      renderizar(filtrados);
+    }
+
+    function mostrarTodos() {
+      renderizar(repo.listar());
+    }
+  </script>
+
+</body>
+</html>
