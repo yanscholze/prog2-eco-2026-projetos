@@ -12,6 +12,8 @@
 ## Descrição do projeto
 
 > Descreva em até 5 linhas o que o sistema faz, para quem é e qual problema resolve.
+> Apresente o diagrama de classes
+> Adicione print das telas do sistema (ou protótipo caso tenha)
 
 ---
 
