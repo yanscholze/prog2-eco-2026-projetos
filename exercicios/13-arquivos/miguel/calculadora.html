@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Calculadora com Interface</title>
+</head>
+<body>
+
+  <h1>🧮 Calculadora</h1>
+
+  <input type="number" id="valorA" placeholder="Valor A">
+  <input type="number" id="valorB" placeholder="Valor B">
+
+  <br><br>
+
+  <select id="operacao">
+    <option value="soma">Soma</option>
+    <option value="subtracao">Subtração</option>
+    <option value="multiplicacao">Multiplicação</option>
+    <option value="potencia">Potência</option>
+    <option value="divisao">Divisão segura</option>
+  </select>
+
+  <button id="calcularBtn">Calcular</button>
+
+  <h2 id="resultado"></h2>
+
+  <script>
+    // "Interface" Operacao (padrão)
+    class Operacao {
+      calcular(a, b) {
+        throw new Error("Método calcular deve ser implementado");
+      }
+    }
+
+    // Classes concretas
+    class Soma extends Operacao {
+      calcular(a, b) {
+        return a + b;
+      }
+    }
+
+    class Subtracao extends Operacao {
+      calcular(a, b) {
+        return a - b;
+      }
+    }
+
+    class Multiplicacao extends Operacao {
+      calcular(a, b) {
+        return a * b;
+      }
+    }
+
+    class Potencia extends Operacao {
+      calcular(a, b) {
+        return a ** b;
+      }
+    }
+
+    class Divisao extends Operacao {
+      calcular(a, b) {
+        if (b === 0) {
+          throw new Error("Não é possível dividir por zero!");
+        }
+        return a / b;
+      }
+    }
+
+    // Função que executa a operação
+    function executarOperacao(a, b, operacao) {
+      return operacao.calcular(a, b);
+    }
+
+    // Selecionando elementos
+    const valorA = document.querySelector("#valorA");
+    const valorB = document.querySelector("#valorB");
+    const select = document.querySelector("#operacao");
+    const botao = document.querySelector("#calcularBtn");
+    const resultado = document.querySelector("#resultado");
+
+    // Evento de clique
+    botao.addEventListener("click", function() {
+      try {
+        const a = Number(valorA.value);
+        const b = Number(valorB.value);
+
+        if (isNaN(a) || isNaN(b)) {
+          throw new Error("Digite valores válidos!");
+        }
+
+        let operacao;
+
+        switch (select.value) {
+          case "soma":
+            operacao = new Soma();
+            break;
+          case "subtracao":
+            operacao = new Subtracao();
+            break;
+          case "multiplicacao":
+            operacao = new Multiplicacao();
+            break;
+          case "potencia":
+            operacao = new Potencia();
+            break;
+          case "divisao":
+            operacao = new Divisao();
+            break;
+        }
+
+        const res = executarOperacao(a, b, operacao);
+        resultado.textContent = "Resultado: " + res;
+
+      } catch (erro) {
+        resultado.textContent = "Erro: " + erro.message;
+      }
+    });
+  </script>
+
+</body>
+</html>

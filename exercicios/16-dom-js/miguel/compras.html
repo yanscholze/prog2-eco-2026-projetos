@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Lista de Compras</title>
+</head>
+<body>
+
+  <h1>🛒 Lista de Compras</h1>
+
+  <input type="text" id="itemInput" placeholder="Digite um item">
+  <button id="addBtn">Adicionar</button>
+
+  <ul id="lista"></ul>
+
+  <p>Total de itens: <span id="contador">0</span></p>
+
+  <script>
+    // Selecionando elementos
+    const input = document.querySelector("#itemInput");
+    const botao = document.querySelector("#addBtn");
+    const lista = document.querySelector("#lista");
+    const contador = document.querySelector("#contador");
+
+    let total = 0;
+
+    // Evento de clique
+    botao.addEventListener("click", function() {
+      const valor = input.value;
+
+      if (valor !== "") {
+        // Criar item da lista
+        const li = document.createElement("li");
+        li.textContent = valor;
+
+        // Adicionar na lista
+        lista.appendChild(li);
+
+        // Limpar input
+        input.value = "";
+
+        // Atualizar contador
+        total++;
+        contador.textContent = total;
+      }
+    });
+  </script>
+
+</body>
+</html>

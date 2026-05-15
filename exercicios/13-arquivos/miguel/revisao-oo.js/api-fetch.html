@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Fetch API com Tratamento de Erros</title>
+</head>
+<body>
+
+  <h1>🌐 Buscar dados da API</h1>
+
+  <select id="tipo">
+    <option value="usuarios">Usuários</option>
+    <option value="posts">Posts</option>
+  </select>
+
+  <button id="buscarBtn">Buscar dados</button>
+
+  <ul id="lista"></ul>
+
+  <p id="mensagem"></p>
+
+  <script>
+    // "Interface"
+    class FonteDados {
+      getUrl() {
+        throw new Error("Método getUrl deve ser implementado");
+      }
+    }
+
+    // Classes concretas
+    class ApiUsuarios extends FonteDados {
+      getUrl() {
+        return "https://jsonplaceholder.typicode.com/users";
+      }
+    }
+
+    class ApiPosts extends FonteDados {
+      getUrl() {
+        return "https://jsonplaceholder.typicode.com/posts";
+      }
+    }
+
+    // Função async com try/catch
+    async function buscarDados(fonte) {
+      try {
+        const resposta = await fetch(fonte.getUrl());
+
+        if (!resposta.ok) {
+          throw new Error("Erro na requisição!");
+        }
+
+        const dados = await resposta.json();
+        return dados;
+
+      } catch (erro) {
+        throw new Error("Falha ao buscar dados: " + erro.message);
+      }
+    }
+
+    // Selecionando elementos
+    const tipo = document.querySelector("#tipo");
+    const botao = document.querySelector("#buscarBtn");
+    const lista = document.querySelector("#lista");
+    const mensagem = document.querySelector("#mensagem");
+
+    // Evento de clique
+    botao.addEventListener("click", async function() {
+      lista.innerHTML = "";
+      mensagem.textContent = "Carregando...";
+
+      try {
+        let fonte;
+
+        if (tipo.value === "usuarios") {
+          fonte = new ApiUsuarios();
+        } else {
+          fonte = new ApiPosts();
+        }
+
+        const dados = await buscarDados(fonte);
+
+        dados.slice(0, 5).forEach(item => {
+          const li = document.createElement("li");
+
+          if (tipo.value === "usuarios") {
+            li.textContent = item.name + " - " + item.email;
+          } else {
+            li.textContent = item.title;
+          }
+
+          lista.appendChild(li);
+        });
+
+        mensagem.textContent = "Dados carregados com sucesso!";
+
+      } catch (erro) {
+        mensagem.textContent = "Erro: " + erro.message;
+      }
+    });
+  </script>
+
+</body>
+</html>
